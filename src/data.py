@@ -14,4 +14,5 @@ words = [
     'espirro', 'grilo', 'celular', 'lençol', 'parede',
     'parafuso', 'tesoura', 'cavalo', 'zebra', 'capivara',
     'muleta', 'bispo', 'conversa', 'jantar', 'anagrama',
+    'parabola', 'capacidade', 'menino', 'zumbido', 'dormir'
 ]
