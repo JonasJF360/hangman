@@ -119,9 +119,7 @@ class Application:
                 self.botao[letra].grid(row=3, column=i-21)
 
     def letra_clicada(self, letra) -> None:
-        if letra in self.letras_clicadas:
-            pass
-        else:
+        if not letra in self.letras_clicadas:
             self.letras_clicadas.append(letra)
             self.verificar_letra(letra)
 

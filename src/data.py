@@ -7,7 +7,7 @@ words = [
     'banana', 'floresta', 'jujuba', 'padaria', 'cerveja',
     'lampiao', 'farinha', 'pimenta', 'batata', 'caveira',
     'juiz', 'cachorro', 'gato', 'periquito', 'janela',
-    'caminhão', 'mosquito', 'legume', 'raiz', 'computador',
+    'caminhao', 'mosquito', 'legume', 'raiz', 'computador',
     'caloteiro', 'salafrario', 'abacaxi', 'sapato', 'sapo',
     'capacete', 'margarida', 'tijolo', 'tapioca', 'rolo',
     'geladeira', 'hospital', 'margarina', 'martelete', 'gema',
@@ -18,31 +18,14 @@ words = [
     'parafuso', 'tesoura', 'cavalo', 'zebra', 'capivara',
     'muleta', 'bispo', 'conversa', 'jantar', 'anagrama',
     'parabola', 'capacidade', 'menino', 'zumbido', 'dormir',
+    'caminho', 'estrada', 'passaro', 'problema', 'caligrafia',
 ]
 
-words2 = [
-    'desenvolvimento', 'algoritmo', 'balisa', 'agua',
-    'banana', 'floresta', 'jujuba', 'padaria', 'cerveja',
-    'lampiao', 'farinha', 'pimenta', 'batata', 'caveira',
-    'juiz', 'cachorro', 'gato', 'periquito', 'janela',
-    'caminhão', 'mosquito', 'legume', 'raiz', 'computador'
-    'caloteiro', 'salafrario', 'abacaxi', 'sapato', 'sapo',
-    'capacete', 'margarida', 'tijolo', 'tapioca', 'rolo',
-    'geladeira', 'hospital', 'margarina', 'martelete', 'gema',
-    'berinjela', 'tomate', 'navio', 'favela', 'calendario',
-    'planilha', 'ervilha', 'onibus', 'carimbo', 'tela',
-    'bandido', 'espirito', 'costela', 'barracao', 'remedio',
-    'espirro', 'grilo', 'celular', 'lençol', 'parede',
-    'parafuso', 'tesoura', 'cavalo', 'zebra', 'capivara',
-    'muleta', 'bispo', 'conversa', 'jantar', 'anagrama',
-    'parabola', 'capacidade', 'menino', 'zumbido', 'dormir'
-]
-
-plvr = [
-    ['python', 'Linguágen de programação.'],
+plvr = [ # Projeto futuro para o botão de interrogação.
+    ['python', 'Linguágen de programaçao.'],
     ['programaçao', 'Agendar uma rotina ou tarefa.'],
     ['linguagem', 'O meio usago por um grupo para se comunicar.'],
-    ['sistema', 'Uma aplicação de computador, ou um meio de organização.'],
+    ['sistema', 'Uma aplicaçao de computador, ou um meio de organizaçao.'],
 ]
 
 
