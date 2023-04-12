@@ -29,6 +29,7 @@ class Application:
         self.app = app
 
         self.chances = 0
+        self.letras_clicadas: list = []
         self.palavra = nova_palavra()
         self.letras_palavra: list = list(self.palavra)
         self.letras_adivinhadas: list = ["_" for letra in self.letras_palavra]
@@ -81,7 +82,7 @@ class Application:
             PhotoImage(file='src/img/hang3.png', width=180, height=180),
             PhotoImage(file='src/img/hang4.png', width=180, height=180),
             PhotoImage(file='src/img/hang5.png', width=180, height=180),
-            PhotoImage(file='src/img/hang0.png', width=180, height=180),
+            PhotoImage(file='src/img/hang6.png', width=180, height=180),
         ]
         self.figura = Label(self.frame_2, image=self.hang[0], bg=cores["azul"])
         self.figura.pack()
@@ -118,7 +119,11 @@ class Application:
                 self.botao[letra].grid(row=3, column=i-21)
 
     def letra_clicada(self, letra) -> None:
-        self.verificar_letra(letra)
+        if letra in self.letras_clicadas:
+            pass
+        else:
+            self.letras_clicadas.append(letra)
+            self.verificar_letra(letra)
 
     def verificar_letra(self, letra) -> None:
 
@@ -134,12 +139,11 @@ class Application:
                 self.label_palavra["text"] = self.letras_adivinhadas
         else:
             self.chances += 1
+            self.figura["image"] = self.hang[self.chances]
             if self.chances == 6:
-                self.figura["image"] = self.hang[self.chances]
                 mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra}"
                 messagebox.showinfo(message=mensagem, title="Hangmam")
                 self.reiniciar()
-            self.figura["image"] = self.hang[self.chances]
 
         if "_" not in self.letras_adivinhadas:
             mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra}"
@@ -155,6 +159,8 @@ class Application:
                 self.botao[letra]["foreground"] = cores["branco"]
 
         self.chances = 0
+        self.letras_clicadas.clear()
+        self.figura["image"] = self.hang[self.chances]
         self.palavra = nova_palavra()
         self.letras_palavra: list = list(self.palavra)
         self.letras_adivinhadas: list = ["_" for letra in self.letras_palavra]
