@@ -20,8 +20,9 @@ cores = {
 # Funções do aplicativo
 
 
-def nova_palavra() -> str:
-    return choice(PALAVRAS).upper()
+def nova_palavra() -> list:
+    palavra = choice(PALAVRAS)
+    return palavra
 
 
 class Application:
@@ -30,8 +31,9 @@ class Application:
 
         self.chances = 0
         self.letras_clicadas: list = []
-        self.palavra = nova_palavra()
-        self.letras_palavra: list = list(self.palavra)
+
+        self.palavra: list = nova_palavra()
+        self.letras_palavra: list = list(self.palavra[0].upper())
         self.letras_adivinhadas: list = ["_" for letra in self.letras_palavra]
 
         self.janela()
@@ -139,12 +141,12 @@ class Application:
             self.chances += 1
             self.figura["image"] = self.hang[self.chances]
             if self.chances == 6:
-                mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra}"
+                mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra[0].upper()}"
                 messagebox.showinfo(message=mensagem, title="Hangmam")
                 self.reiniciar()
 
         if "_" not in self.letras_adivinhadas:
-            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra}"
+            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra[0].upper()}"
             messagebox.showinfo(message=mensagem, title="Hangmam")
             self.reiniciar()
 
@@ -159,14 +161,11 @@ class Application:
         self.chances = 0
         self.letras_clicadas.clear()
         self.figura["image"] = self.hang[self.chances]
-        self.palavra = nova_palavra()
-        self.letras_palavra: list = list(self.palavra)
+        self.palavra: list = nova_palavra()
+        self.letras_palavra: list = list(self.palavra[0].upper())
         self.letras_adivinhadas: list = ["_" for letra in self.letras_palavra]
         self.label_palavra["text"] = self.letras_adivinhadas
 
     def ajuda(self) -> None:
-        mensagem = "Clique nas letras para tentar adivinhar a palavra secreta.\nDeseja continuar jogando?"
-        sim_nao = messagebox.askyesno(
-            message=mensagem, icon='info', title='Hangmam')
-        if not sim_nao:
-            quit()
+        mensagem = self.palavra[1]
+        messagebox.showinfo(message=mensagem, title="Hangmam")
