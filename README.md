@@ -1,4 +1,4 @@
-<img src="./src/img/hangman_icon.svg" style="float: left; width: 80px;  margin-right: 20px;">
+<img src="./src/img/hangman_icon.svg" style="float: right; margin: 20px;">
 
 # **Hangman**
 Hangman ou em português Jogo da Forca, é um jogo de adivinhação onde você deverá descobrir qual é a palavra secreta cujo é apresentada de forma aleatória dizendo apenas as suas letras existentes.
@@ -9,6 +9,7 @@ Nesse projeto em questão, você também pode contar com uma dica da palavra apr
 ## **Observações importantes:**
 - Esse jogo foi desenvolvido em python usando a biblioteca TKinter para criar sua interface gráfica (GUI), caso tenha conhecimento e deseje testar, talvez precise instalar essa biblioteca para funcionar;
   - `pip install tk` ou `pip3 install tk`
+
 - Outro detalhe é que estou usando um sistema Linux derivado do Ubuntu, o **Kubuntu**, e tem uma chance da interface ficar diferente em outro sistema operacional, e certamente irá precisar de alguns ajustes.
 
 # Minha proposta pessoal nesse projeto:

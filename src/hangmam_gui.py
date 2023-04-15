@@ -1,4 +1,5 @@
 """ Importação das bibliotecas """
+import platform
 from tkinter import *
 from random import choice
 from tkinter import messagebox
@@ -6,13 +7,19 @@ from tkinter import messagebox
 # Lista de palavras
 from src.data import words as PALAVRAS
 
+if str(platform.system()) == 'Windows':
+    PATH: str = 'src\\img\\'
+else:
+    PATH: str = 'src/img/'
+
 app = Tk()
 
 cores = {
-    "azul_claro": '#153553',
-    "nada": '#3b7bb6',
+    "azul_escuro": '#153553',
+    "azul_claro": '#3b7bb6',
+    "vermelho": '#b8646f',
     "azul": '#2f6597',
-    "branco": "#fff",
+    "branco": "#ffffff",
     "verde": "#309979",
     "amarelo": "#bd9f4f",
 }
@@ -45,7 +52,7 @@ class Application:
     def janela(self) -> None:
         self.app.title("Hangman")
         self.app.resizable(width=False, height=False)
-        self.app.configure(background=cores["nada"])
+        self.app.configure(background=cores["azul_claro"])
 
         width = 420
         height = 545
@@ -57,19 +64,19 @@ class Application:
 
     def frames_do_app(self) -> None:
         self.frame_1 = Frame(self.app, bd=4, bg=cores["azul"],
-                             highlightbackground=cores["azul_claro"], highlightthickness=2)
+                             highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_1.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.1)
 
         self.frame_2 = Frame(self.app, bd=4, bg=cores["azul"],
-                             highlightbackground=cores["azul_claro"], highlightthickness=2)
+                             highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_2.place(relx=0.02, rely=0.13, relwidth=0.96, relheight=0.35)
 
         self.frame_3 = Frame(self.app, bd=4, bg=cores["azul"],
-                             highlightbackground=cores["azul_claro"], highlightthickness=2)
+                             highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_3.place(relx=0.02, rely=0.49, relwidth=0.96, relheight=0.12)
 
         self.frame_4 = Frame(self.app, bd=4, bg=cores["azul"],
-                             highlightbackground=cores["azul_claro"], highlightthickness=2)
+                             highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_4.place(relx=0.02, rely=0.62, relwidth=0.96, relheight=0.36)
 
     def lables_do_app(self) -> None:
@@ -77,15 +84,8 @@ class Application:
             self.frame_1, text="JOGO DA FORCA", bg=cores["azul"], fg="#fff",  font=("Arial", 28))
         lable_titulo.pack()
 
-        self.hang = [
-            PhotoImage(file='src/img/hang0.png', width=180, height=180),
-            PhotoImage(file='src/img/hang1.png', width=180, height=180),
-            PhotoImage(file='src/img/hang2.png', width=180, height=180),
-            PhotoImage(file='src/img/hang3.png', width=180, height=180),
-            PhotoImage(file='src/img/hang4.png', width=180, height=180),
-            PhotoImage(file='src/img/hang5.png', width=180, height=180),
-            PhotoImage(file='src/img/hang6.png', width=180, height=180),
-        ]
+        self.hang = [PhotoImage(
+            file=f'{PATH}hang{x}.png', width=180, height=180) for x in range(7)]
         self.figura = Label(self.frame_2, image=self.hang[0], bg=cores["azul"])
         self.figura.pack()
 
@@ -98,7 +98,7 @@ class Application:
 
         self.botao = {}
         for i, letra in enumerate(alfabeto):
-            self.botao[letra] = Button(self.frame_4, text=letra, bg=cores["azul_claro"], fg=cores["azul_claro"],
+            self.botao[letra] = Button(self.frame_4, text=letra, bg=cores["azul_escuro"], fg=cores["azul_escuro"],
                                        foreground=cores["branco"], bd=0, highlightthickness=0,
                                        width=4, height=2, font=("Arial", 11))
 
@@ -108,7 +108,7 @@ class Application:
             else:
                 self.botao[letra]["command"] = self.ajuda
                 self.botao[letra]["bg"] = cores["verde"]
-                self.botao[letra]["fg"] = cores["azul_claro"]
+                self.botao[letra]["fg"] = cores["azul_escuro"]
                 self.botao[letra]["foreground"] = cores["branco"]
 
             if i < 7:
@@ -127,17 +127,21 @@ class Application:
 
     def verificar_letra(self, letra) -> None:
 
-        self.botao[letra]["bg"] = cores["amarelo"]
-        self.botao[letra]["fg"] = cores["amarelo"]
-        self.botao[letra]["foreground"] = cores["branco"]
-
         if letra in self.letras_palavra:
+            self.botao[letra]["bg"] = cores["amarelo"]
+            self.botao[letra]["fg"] = cores["amarelo"]
+            self.botao[letra]["foreground"] = cores["branco"]
+
             for i, l in enumerate(self.letras_palavra):
                 if letra == l:
                     self.letras_adivinhadas[i] = letra
 
                 self.label_palavra["text"] = self.letras_adivinhadas
         else:
+            self.botao[letra]["bg"] = cores["vermelho"]
+            self.botao[letra]["fg"] = cores["vermelho"]
+            self.botao[letra]["foreground"] = cores["branco"]
+
             self.chances += 1
             self.figura["image"] = self.hang[self.chances]
             if self.chances == 6:
@@ -154,8 +158,8 @@ class Application:
         alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ?"
         for i, letra in enumerate(alfabeto):
             if i < 27:
-                self.botao[letra]["bg"] = cores["azul_claro"]
-                self.botao[letra]["fg"] = cores["azul_claro"]
+                self.botao[letra]["bg"] = cores["azul_escuro"]
+                self.botao[letra]["fg"] = cores["azul_escuro"]
                 self.botao[letra]["foreground"] = cores["branco"]
 
         self.chances = 0
