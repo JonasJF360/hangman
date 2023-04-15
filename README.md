@@ -1,4 +1,4 @@
-<img src="./src/img/hangman_icon.svg" align="left" style="margin-right: 20px;">
+<img src="./src/img/hangman_icon.svg" align="left" style="margint: 20px 20px 0px 0px;">
 
 # **Hangman**
 Hangman ou em português Jogo da Forca, é um jogo de adivinhação onde você deverá descobrir qual é a palavra secreta cujo é apresentada de forma aleatória dizendo apenas as suas letras existentes.
