@@ -43,7 +43,7 @@ class Application:
         self.app.mainloop()
 
     def janela(self) -> None:
-        self.app.title("Hangmam")
+        self.app.title("Hangman")
         self.app.resizable(width=False, height=False)
         self.app.configure(background=cores["nada"])
 
@@ -142,12 +142,12 @@ class Application:
             self.figura["image"] = self.hang[self.chances]
             if self.chances == 6:
                 mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra[0].upper()}"
-                messagebox.showinfo(message=mensagem, title="Hangmam")
+                messagebox.showinfo(message=mensagem, title="Hangman")
                 self.reiniciar()
 
         if "_" not in self.letras_adivinhadas:
             mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra[0].upper()}"
-            messagebox.showinfo(message=mensagem, title="Hangmam")
+            messagebox.showinfo(message=mensagem, title="Hangman")
             self.reiniciar()
 
     def reiniciar(self) -> None:
@@ -168,4 +168,4 @@ class Application:
 
     def ajuda(self) -> None:
         mensagem = self.palavra[1]
-        messagebox.showinfo(message=mensagem, title="Hangmam")
+        messagebox.showinfo(message=mensagem, title="Hangman")
