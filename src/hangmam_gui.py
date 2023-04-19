@@ -6,6 +6,7 @@ from random import choice
 
 # Lista de palavras
 from src.data import words as PALAVRAS
+palavras_jogadas: list = []
 
 if str(platform.system()) == 'Windows':
     PATH: str = 'src\\img\\'
@@ -28,7 +29,12 @@ cores = {
 def nova_palavra() -> list:
     """ Essa função seleciona uma palavra da lista
     de palavras juntamente com sua menságem de ajuda. """
-    return choice(PALAVRAS)
+    palavra = choice(PALAVRAS)
+
+    while palavra[0] in palavras_jogadas:
+        palavra = choice(PALAVRAS)
+
+    return palavra
 
 
 class Application:
@@ -36,6 +42,9 @@ class Application:
         self.app = app
 
         self.chances = 0
+        self.num_chances = IntVar()
+        self.num_acertos = IntVar()
+        self.num_erros = IntVar()
         self.letras_clicadas: list = []
 
         self.palavra: list = nova_palavra()
@@ -69,6 +78,13 @@ class Application:
                              highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_2.place(relx=0.02, rely=0.13, relwidth=0.96, relheight=0.35)
 
+        self.frame_2_1 = Frame(
+            self.frame_2, bd=4, bg=cores["azul"], highlightthickness=0)
+        self.frame_2_2 = Frame(
+            self.frame_2, bd=4, bg=cores["azul"], highlightthickness=0)
+        self.frame_2_1.pack(side=LEFT, expand=True)
+        self.frame_2_2.pack(side=RIGHT, expand=True)
+
         self.frame_3 = Frame(self.app, bd=4, bg=cores["azul"],
                              highlightbackground=cores["azul_escuro"], highlightthickness=2)
         self.frame_3.place(relx=0.02, rely=0.49, relwidth=0.96, relheight=0.12)
@@ -83,10 +99,29 @@ class Application:
               font=("Arial", 28)).pack()
 
         self.hang = [PhotoImage(
-            file=f'{PATH}hang{x}.png', width=180, height=180) for x in range(7)]
+            file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
         self.figura = Label(
-            self.frame_2, image=self.hang[0], bg=cores["azul"])
-        self.figura.pack()
+            self.frame_2_1, image=self.hang[0], bg=cores["azul"])
+        self.figura.pack(expand=True)
+
+        Label(self.frame_2_2, text="CHANCES", bg=cores["azul"], fg=cores["branco"],
+              font=("Arial", 14)).pack(expand=True)
+        self.lb_chances = Label(self.frame_2_2, textvariable=self.num_chances, bg=cores["azul"], fg=cores["branco"],
+                                font=("Arial", 18, "bold")).pack(expand=True)
+
+        Label(self.frame_2_2, text="ACERTOS", bg=cores["azul"], fg=cores["branco"],
+              font=("Arial", 14)).pack(expand=True)
+        self.lb_acertos = Label(self.frame_2_2, textvariable=self.num_acertos, bg=cores["azul"], fg=cores["branco"],
+                                font=("Arial", 18, "bold")).pack(expand=True)
+
+        Label(self.frame_2_2, text="ERROS", bg=cores["azul"], fg=cores["branco"],
+              font=("Arial", 14)).pack(expand=True)
+        self.lb_erros = Label(self.frame_2_2, textvariable=self.num_erros, bg=cores["azul"], fg=cores["branco"],
+                              font=("Arial", 18, "bold")).pack(expand=True)
+
+        self.num_chances.set((self.chances - 6) * -1)
+        self.num_acertos.set(0)
+        self.num_erros.set(0)
 
         self.label_palavra = Label(
             self.frame_3, text=self.letras_adivinhadas, bg=cores["azul"], fg=cores["branco"],
@@ -142,6 +177,7 @@ class Application:
         else:
             self.botao[letra]["bg"] = cores["vermelho"]
             self.chances += 1
+            self.num_chances.set((self.chances - 6) * -1)
             self.figura["image"] = self.hang[self.chances]
 
         self.acertou_a_palavra()
@@ -155,11 +191,14 @@ class Application:
         if "_" not in self.letras_adivinhadas:
             mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra[0].upper()}"
             messagebox.showinfo(message=mensagem, title="Hangman")
+            self.num_acertos.set(int(self.num_acertos.get()) + 1)
+            palavras_jogadas.append(self.palavra[0])
             self.reiniciar()
 
         if self.chances == 6:
             mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra[0].upper()}"
             messagebox.showwarning(message=mensagem, title="Hangman")
+            self.num_erros.set(int(self.num_erros.get()) + 1)
             self.reiniciar()
 
     def reiniciar(self) -> None:
@@ -171,6 +210,7 @@ class Application:
                 self.botao[letra]["bg"] = cores["azul_escuro"]
 
         self.chances = 0
+        self.num_chances.set((self.chances - 6) * -1)
         self.letras_clicadas.clear()
         self.figura["image"] = self.hang[self.chances]
         self.palavra: list = nova_palavra()
