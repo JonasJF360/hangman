@@ -6,7 +6,7 @@ from random import choice
 
 # Lista de palavras
 from src.data import words
-palavras_cacertadas: list = []
+ultima_palavra_acertada: list = []
 
 if str(platform.system()) == 'Windows':
     PATH: str = 'src\\img\\'
@@ -28,12 +28,15 @@ cores = {
 def nova_palavra() -> tuple:
     """ Essa função seleciona uma palavra da lista
     de palavras juntamente com sua menságem de ajuda. """
-    palavra = choice(words)
+    remover_palavras_acertadas()
+    return tuple(choice(words))
 
-    while palavra[0] in palavras_cacertadas:
-        palavra = choice(words)
 
-    return tuple(palavra)
+def remover_palavras_acertadas() -> None:
+    """ Essa função remove a ultima palavra acertada pelo jogador
+        da lista de palavras a serem sujeridas. """
+    if len(ultima_palavra_acertada):
+        words.remove(ultima_palavra_acertada.pop())
 
 
 class Application:
@@ -54,7 +57,7 @@ class Application:
         self.app_buttons()
 
         self.nova_partida()
-        
+
         self.app.mainloop()
 
     def app_window(self) -> None:
@@ -187,7 +190,7 @@ class Application:
             mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra.upper()}"
             messagebox.showinfo(message=mensagem, title="Hangman")
             self.num_acertos.set(int(self.num_acertos.get()) + 1)
-            palavras_cacertadas.append(self.palavra)
+            ultima_palavra_acertada.append([self.palavra, self.dica])
             self.nova_partida()
 
     def acabou_as_chances(self) -> None:
@@ -205,6 +208,8 @@ class Application:
             para que se possa  jogar uma nova partida como
             se fosse a primeira  novamente mantendo apenas
             os erros e acertos já obtidos. """
+        self.zereu_o_jogo()
+
         for letra in self.botao:
             if letra != '?':
                 self.botao[letra]["bg"] = cores["azul_escuro"]
@@ -217,6 +222,16 @@ class Application:
         self.letras_palavra: list = list(self.palavra.upper())
         self.letras_adivinhadas: list = ["_" for _ in self.letras_palavra]
         self.label_palavra["text"] = self.letras_adivinhadas
+
+    def zereu_o_jogo(self) -> None:
+        """ Essa função será verdade caso o jogador acerte todas as 
+            palavras contidas no jogo, após isso será exibida uma
+            menságe e o jogo irá fechar. """
+        if len(words) == 1:
+            mensagem = "Parabéns, você acertou todas as palavras do jogo.\nParabéns por zerar o jogo."
+            messagebox.showinfo(message=mensagem, title="Hangman")
+            self.app.destroy()
+            quit()
 
     def ajuda(self) -> None:
         """ Função mostra a dica da palavra que esta apresentada. """

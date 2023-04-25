@@ -86,5 +86,6 @@ words = [
     ['caligrafia', 'Arte ou técnica de escrever à mão, formando letras e outros sinais gráficos elegantes e harmônicos.'],
 ]
 
+
 if __name__ == '__main__':
     print(len(words), 'palavras cadastradas.')
