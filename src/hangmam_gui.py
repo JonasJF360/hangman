@@ -56,9 +56,12 @@ class Application:
         self.app_lables()
         self.app_buttons()
 
+        self.adicionar_funcionalidades()
         self.nova_partida()
 
         self.app.mainloop()
+
+    ## Definição das partes visuais da aplicação (GUI) ##
 
     def app_window(self) -> None:
         """ Definição das configurações da janela do aplicativo """
@@ -101,10 +104,7 @@ class Application:
         Label(self.frame_1, text="JOGO DA FORCA", bg=cores["azul"], fg=cores["branco"],
               font=("Arial", 28)).pack()
 
-        self.imagen_hang = [PhotoImage(
-            file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
-        self.figura = Label(
-            self.frame_2_1, image=self.imagen_hang[self.imagem_atual], bg=cores["azul"])
+        self.figura = Label(self.frame_2_1, bg=cores["azul"])
         self.figura.pack(expand=True)
 
         Label(self.frame_2_2, text="CHANCES", bg=cores["azul"], fg=cores["branco"],
@@ -130,30 +130,38 @@ class Application:
     def app_buttons(self) -> None:
         """ Definição dos botões do app com suas respectivas
             configurações e funcionalidades. """
-        alfabeto: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ?"
+        alfabeto: list = ["ABCDEFG", "HIJKLMN", "OPQRSTU", "VWXYZÇ?"]
 
         self.botao = {}
-        for i, letra in enumerate(alfabeto):
-            self.botao[letra] = Button(
-                self.frame_4, text=letra, bg=cores["azul_escuro"], foreground=cores["branco"],
-                bd=0, highlightthickness=0, width=4, height=2, font=("Arial", 11, "bold"))
+        for linha, dado in enumerate(alfabeto):
+            for coluna, letra in enumerate(dado):
+                self.botao[letra] = Button(
+                    self.frame_4, text=letra, bg=cores["azul_escuro"], foreground=cores["branco"],
+                    bd=0, highlightthickness=0, width=4, height=2, font=("Arial", 11, "bold"))
 
-            if i < 27:
+                self.botao[letra].grid(row=linha, column=coluna)
+
+    ## Definição das regras de negócio da aplicação ##
+
+    def adicionar_funcionalidades(self) -> None:
+        """ Essa função adiciona as funcionalidades da aplicação
+            como o que acontece quando se clica em um botão ou
+            a imágem que será apresentada ao iniciar. """
+        # imagem
+        self.imagen_hang = [PhotoImage(
+            file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
+
+        self.figura["image"] = self.imagen_hang[self.imagem_atual]
+
+        # botoes
+        for letra in self.botao:
+            if letra != '?':
                 self.botao[letra]["command"] = lambda x=letra: self.letra_clicada(
                     x)
             else:
                 self.botao[letra]["command"] = self.ajuda
                 self.botao[letra]["bg"] = cores["verde"]
                 self.botao[letra]["foreground"] = cores["azul_escuro"]
-
-            if i < 7:
-                self.botao[letra].grid(row=0, column=i)
-            elif i < 14:
-                self.botao[letra].grid(row=1, column=i-7)
-            elif i < 21:
-                self.botao[letra].grid(row=2, column=i-14)
-            else:
-                self.botao[letra].grid(row=3, column=i-21)
 
     def letra_clicada(self, letra) -> None:
         """ Essa função identifica a letra clicada a registra para ser
