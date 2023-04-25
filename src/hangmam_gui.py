@@ -5,15 +5,14 @@ from tkinter import messagebox
 from random import choice
 
 # Lista de palavras
-from src.data import words as PALAVRAS
-palavras_jogadas: list = []
+from src.data import words
+palavras_cacertadas: list = []
 
 if str(platform.system()) == 'Windows':
     PATH: str = 'src\\img\\'
 else:
     PATH: str = 'src/img/'
 
-app = Tk()
 
 cores = {
     "azul": '#2a7fff',
@@ -26,35 +25,36 @@ cores = {
 }
 
 
-def nova_palavra() -> list:
+def nova_palavra() -> tuple:
     """ Essa função seleciona uma palavra da lista
     de palavras juntamente com sua menságem de ajuda. """
-    palavra = choice(PALAVRAS)
+    palavra = choice(words)
 
-    while palavra[0] in palavras_jogadas:
-        palavra = choice(PALAVRAS)
+    while palavra[0] in palavras_cacertadas:
+        palavra = choice(words)
 
-    return palavra
+    return tuple(palavra)
 
 
 class Application:
     def __init__(self) -> None:
-        self.app = app
+        self.app = Tk()
 
-        self.chances = 0
-        self.num_chances = IntVar()
+        self.imagem_atual = 0
+        self.chances_restantes = IntVar()
         self.num_acertos = IntVar()
         self.num_erros = IntVar()
-        self.letras_clicadas: list = []
-
-        self.palavra: list = nova_palavra()
-        self.letras_palavra: list = list(self.palavra[0].upper())
-        self.letras_adivinhadas: list = ["_" for _ in self.letras_palavra]
+        self.palavra = self.dica = ""
+        self.letras_palavra: list = []
+        self.letras_adivinhadas: list = []
 
         self.app_window()
         self.app_frames()
         self.app_lables()
         self.app_buttons()
+
+        self.nova_partida()
+        
         self.app.mainloop()
 
     def app_window(self) -> None:
@@ -98,15 +98,15 @@ class Application:
         Label(self.frame_1, text="JOGO DA FORCA", bg=cores["azul"], fg=cores["branco"],
               font=("Arial", 28)).pack()
 
-        self.hang = [PhotoImage(
+        self.imagen_hang = [PhotoImage(
             file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
         self.figura = Label(
-            self.frame_2_1, image=self.hang[0], bg=cores["azul"])
+            self.frame_2_1, image=self.imagen_hang[self.imagem_atual], bg=cores["azul"])
         self.figura.pack(expand=True)
 
         Label(self.frame_2_2, text="CHANCES", bg=cores["azul"], fg=cores["branco"],
               font=("Arial", 14)).pack(expand=True)
-        self.lb_chances = Label(self.frame_2_2, textvariable=self.num_chances, bg=cores["azul"], fg=cores["branco"],
+        self.lb_chances = Label(self.frame_2_2, textvariable=self.chances_restantes, bg=cores["azul"], fg=cores["branco"],
                                 font=("Arial", 18, "bold")).pack(expand=True)
 
         Label(self.frame_2_2, text="ACERTOS", bg=cores["azul"], fg=cores["branco"],
@@ -119,18 +119,14 @@ class Application:
         self.lb_erros = Label(self.frame_2_2, textvariable=self.num_erros, bg=cores["azul"], fg=cores["branco"],
                               font=("Arial", 18, "bold")).pack(expand=True)
 
-        self.num_chances.set((self.chances - 6) * -1)
-        self.num_acertos.set(0)
-        self.num_erros.set(0)
-
         self.label_palavra = Label(
             self.frame_3, text=self.letras_adivinhadas, bg=cores["azul"], fg=cores["branco"],
-            font=("Arial", 22))
-        self.label_palavra.pack(pady=6)
+            font=("Arial", 20))
+        self.label_palavra.pack(pady=7)
 
     def app_buttons(self) -> None:
         """ Definição dos botões do app com suas respectivas
-        configurações e funcionalidades. """
+            configurações e funcionalidades. """
         alfabeto: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ?"
 
         self.botao = {}
@@ -159,8 +155,8 @@ class Application:
     def letra_clicada(self, letra) -> None:
         """ Essa função identifica a letra clicada a registra para ser
         inativada até que uma nova palavra seja criada. """
-        if not letra in self.letras_clicadas:
-            self.letras_clicadas.append(letra)
+        if not letra in self.letras_adivinhadas:
+            self.botao[letra]["state"] = DISABLED
             self.verificar_letra(letra)
 
     def verificar_letra(self, letra) -> None:
@@ -176,49 +172,53 @@ class Application:
                 self.label_palavra["text"] = self.letras_adivinhadas
         else:
             self.botao[letra]["bg"] = cores["vermelho"]
-            self.chances += 1
-            self.num_chances.set((self.chances - 6) * -1)
-            self.figura["image"] = self.hang[self.chances]
+            self.imagem_atual += 1
+            self.chances_restantes.set(self.chances_restantes.get() - 1)
+            self.figura["image"] = self.imagen_hang[self.imagem_atual]
 
         self.acertou_a_palavra()
+        self.acabou_as_chances()
 
     def acertou_a_palavra(self) -> None:
         """ Função que verifica se a palavra já está completa
-            e mostra uma menságem dizendo que o usuário já adivinhou.
-            caso as chances tenhar acabado também será mostrada uma
-            menságem dizendo que o jogador perdeu.
-            Ambas irão revelar a palavra secreta """
+            e mostra  uma  menságem dizendo  que o usuário já
+            adivinhou e irá iniciar um nova partida. """
         if "_" not in self.letras_adivinhadas:
-            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra[0].upper()}"
+            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra.upper()}"
             messagebox.showinfo(message=mensagem, title="Hangman")
             self.num_acertos.set(int(self.num_acertos.get()) + 1)
-            palavras_jogadas.append(self.palavra[0])
-            self.reiniciar()
+            palavras_cacertadas.append(self.palavra)
+            self.nova_partida()
 
-        if self.chances == 6:
-            mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra[0].upper()}"
+    def acabou_as_chances(self) -> None:
+        """ Caso as imagem_atual tenhar  acabado  será  mostrada
+            uma menságem dizendo que o jogador perdeu e irá
+            iciar uma nova partida."""
+        if self.chances_restantes.get() == 0:
+            mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra.upper()}"
             messagebox.showwarning(message=mensagem, title="Hangman")
             self.num_erros.set(int(self.num_erros.get()) + 1)
-            self.reiniciar()
+            self.nova_partida()
 
-    def reiniciar(self) -> None:
+    def nova_partida(self) -> None:
         """ Essa função reinicia as configurações iniciais
-            para que se possa jogar uma nova partida como
-            se fosse a primeira novamente. """
-        for i, letra in enumerate(self.botao):
-            if i < 27:
+            para que se possa  jogar uma nova partida como
+            se fosse a primeira  novamente mantendo apenas
+            os erros e acertos já obtidos. """
+        for letra in self.botao:
+            if letra != '?':
                 self.botao[letra]["bg"] = cores["azul_escuro"]
+                self.botao[letra]["state"] = NORMAL
 
-        self.chances = 0
-        self.num_chances.set((self.chances - 6) * -1)
-        self.letras_clicadas.clear()
-        self.figura["image"] = self.hang[self.chances]
-        self.palavra: list = nova_palavra()
-        self.letras_palavra: list = list(self.palavra[0].upper())
+        self.imagem_atual = 0
+        self.chances_restantes.set(6)
+        self.figura["image"] = self.imagen_hang[self.imagem_atual]
+        self.palavra, self.dica = nova_palavra()
+        self.letras_palavra: list = list(self.palavra.upper())
         self.letras_adivinhadas: list = ["_" for _ in self.letras_palavra]
         self.label_palavra["text"] = self.letras_adivinhadas
 
     def ajuda(self) -> None:
         """ Função mostra a dica da palavra que esta apresentada. """
-        mensagem = self.palavra[1]
+        mensagem = self.dica
         messagebox.showinfo(message=mensagem, title="Hangman")
