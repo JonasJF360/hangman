@@ -134,12 +134,15 @@ class Application:
 
         self.botao = {}
         for linha, dado in enumerate(alfabeto):
+            self.frame_4.grid_rowconfigure(linha, weight=1, uniform="row")
             for coluna, letra in enumerate(dado):
+                self.frame_4.grid_columnconfigure(
+                    coluna, weight=1, uniform="column")
                 self.botao[letra] = Button(
                     self.frame_4, text=letra, bg=cores["azul_escuro"], foreground=cores["branco"],
-                    bd=0, highlightthickness=0, width=4, height=2, font=("Arial", 11, "bold"))
+                    bd=0, highlightthickness=0, font=("Arial", 11, "bold"))
 
-                self.botao[letra].grid(row=linha, column=coluna)
+                self.botao[letra].grid(row=linha, column=coluna, sticky="NSEW")
 
     ## Definição das regras de negócio da aplicação ##
 

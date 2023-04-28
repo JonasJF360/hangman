@@ -5,6 +5,7 @@ __pycache__/
 
 # minhas exceções
 testes/
+main_testes.py
 
 # C extensions
 *.so
