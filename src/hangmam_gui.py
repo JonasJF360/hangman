@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import messagebox
 
 # Lista de palavras
-from src.palavra import Palavra
+from src.hangman_jogo import Jogo
 
 # Identificar o sistema
 PATH: str = 'src\\img\\' if str(platform.system()) == 'Windows' else 'src/img/'
@@ -23,14 +23,12 @@ class Application:
 
     def __init__(self) -> None:
         self.app = Tk()
-        self.pl = Palavra()
+        self.jogo = Jogo()
 
-        self.imagem_atual = 0
         self.chances_restantes = IntVar()
         self.num_acertos = IntVar()
         self.num_erros = IntVar()
-        self.palavra = self.dica = ""
-        self.letras_adivinhadas: list = []
+        self.letras_adivinhadas: str = StringVar()
 
         self.app_window()
         self.app_frames()
@@ -103,11 +101,8 @@ class Application:
         Label(self.frame_2_2, textvariable=self.num_erros,
               bg=self.cores["azul"], fg=self.cores["branco"], font=("Arial", 18, "bold")).pack(expand=True)
 
-        self.label_palavra = Label(
-            self.frame_3, text=self.letras_adivinhadas, bg=self.cores[
-                "azul"], fg=self.cores["branco"],
-            font=("Arial", 20))
-        self.label_palavra.pack(pady=7)
+        Label(self.frame_3, textvariable=self.letras_adivinhadas, bg=self.cores[
+            "azul"], fg=self.cores["branco"], font=("Arial", 20)).pack(pady=7)
 
     def app_buttons(self) -> None:
         """ Definição dos botões do app com suas respectivas
@@ -135,7 +130,7 @@ class Application:
         self.imagen_hang = [PhotoImage(
             file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
 
-        self.figura["image"] = self.imagen_hang[self.imagem_atual]
+        self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
 
         # botoes
         for letra in self.botao:
@@ -148,44 +143,42 @@ class Application:
                 self.botao[letra]["foreground"] = self.cores["azul_escuro"]
 
     def botao_clicado(self, letra) -> None:
-        """ Essa função identifica a letra clicada a registra para ser
-            inativada até que uma nova palavra seja criada. """
-        if not letra in self.letras_adivinhadas:
-            self.botao[letra]["state"] = DISABLED
-            self.verificar_letra(letra)
+        """ Essa função identifica a letra clicada e desabilita o botão dessa letra. """
+        self.botao[letra]["state"] = DISABLED
+        self.verificar_letra(letra)
 
     def verificar_letra(self, letra) -> None:
         """ Função que verifica se a letra clicada pertence a palavra corrente.
             Caso acerte aletra ela será mostrada na tela. """
-        if letra in self.palavra.upper():
+        if letra in self.palavra:
             self.botao[letra]["bg"] = self.cores["amarelo"]
             self.atualizar_palavra(letra)
         else:
             self.botao[letra]["bg"] = self.cores["vermelho"]
-            self.imagem_atual += 1
             self.chances_restantes.set(self.chances_restantes.get() - 1)
-            self.figura["image"] = self.imagen_hang[self.imagem_atual]
+            self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
 
         self.acertou_a_palavra()
         self.acabou_as_chances()
 
     def atualizar_palavra(self, letra_clicada) -> None:
         """ Atualiza a palavra para mostrar a letra que foi acertada """
-        for i, letra in enumerate(self.letras_palavra):
+        temp = list(self.letras_adivinhadas.get().replace(" ", ""))
+        for i, letra in enumerate(self.palavra):
             if letra_clicada == letra:
-                self.letras_adivinhadas[i] = letra_clicada
+                temp[i] = letra_clicada
 
-            self.label_palavra["text"] = self.letras_adivinhadas
+            self.letras_adivinhadas.set(" ".join(temp))
 
     def acertou_a_palavra(self) -> None:
         """ Função que verifica se a palavra já está completa
             e mostra  uma  menságem dizendo  que o usuário já
             adivinhou e irá iniciar um nova partida. """
-        if "_" not in self.letras_adivinhadas:
-            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra.upper()}"
+        if "_" not in self.letras_adivinhadas.get():
+            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra}"
             messagebox.showinfo(message=mensagem, title="Hangman")
             self.num_acertos.set(int(self.num_acertos.get()) + 1)
-            self.pl.add_palavra_acertada(self.palavra, self.dica)
+            self.jogo.add_palavra_acertada(self.palavra, self.dica)
             self.nova_partida()
 
     def acabou_as_chances(self) -> None:
@@ -193,7 +186,7 @@ class Application:
             uma menságem dizendo que o jogador perdeu e irá
             iciar uma nova partida."""
         if self.chances_restantes.get() == 0:
-            mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra.upper()}"
+            mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra}"
             messagebox.showwarning(message=mensagem, title="Hangman")
             self.num_erros.set(int(self.num_erros.get()) + 1)
             self.nova_partida()
@@ -210,19 +203,17 @@ class Application:
                 self.botao[letra]["bg"] = self.cores["azul_escuro"]
                 self.botao[letra]["state"] = NORMAL
 
-        self.imagem_atual = 0
         self.chances_restantes.set(6)
-        self.figura["image"] = self.imagen_hang[self.imagem_atual]
-        self.palavra, self.dica = self.pl.nova_palavra()
-        self.letras_palavra: list = list(self.palavra.upper())
-        self.letras_adivinhadas: list = ["_" for _ in self.letras_palavra]
-        self.label_palavra["text"] = self.letras_adivinhadas
+        self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
+        self.palavra, self.dica = self.jogo.nova_palavra()
+        self.letras_adivinhadas.set(
+            " ".join(["_" for _ in self.palavra]))
 
     def zereu_o_jogo(self) -> None:
         """ Essa função será verdade caso o jogador acerte todas as 
             palavras contidas no jogo, após isso será exibida uma
             menságe e o jogo irá fechar. """
-        if self.pl.acabou_as_palavras():
+        if self.jogo.acabou_as_palavras():
             mensagem = "Parabéns, você acertou todas as palavras do jogo.\nParabéns por zerar o jogo."
             messagebox.showinfo(message=mensagem, title="Hangman")
             self.app.destroy()
