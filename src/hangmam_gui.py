@@ -1,13 +1,12 @@
-""" Importação das bibliotecas """
-import platform
+""" Importação das bibliotecas necessárias """
 from tkinter import *
-from tkinter import messagebox
+from pathlib import Path
 
-# Lista de palavras
-from src.hangman_jogo import Jogo
+# Importação da classe Jogo
+from src.jogo import Jogo
 
-# Identificar o sistema
-PATH: str = 'src\\img\\' if str(platform.system()) == 'Windows' else 'src/img/'
+# Caminho das imágens do jogo
+PATH: str = Path(__file__).parent / "img"
 
 
 class Application:
@@ -88,8 +87,8 @@ class Application:
 
         Label(self.frame_2_2, text="CHANCES", bg=self.cores["azul"], fg=self.cores["branco"],
               font=("Arial", 14)).pack(expand=True)
-        self.lb_chances = Label(self.frame_2_2, textvariable=self.chances_restantes, bg=self.cores["azul"], fg=self.cores["branco"],
-                                font=("Arial", 18, "bold")).pack(expand=True)
+        Label(self.frame_2_2, textvariable=self.chances_restantes,
+              bg=self.cores["azul"], fg=self.cores["branco"], font=("Arial", 18, "bold")).pack(expand=True)
 
         Label(self.frame_2_2, text="ACERTOS", bg=self.cores["azul"], fg=self.cores["branco"],
               font=("Arial", 14)).pack(expand=True)
@@ -128,7 +127,7 @@ class Application:
             a imágem que será apresentada ao iniciar. """
         # imagem
         self.imagen_hang = [PhotoImage(
-            file=f'{PATH}hang{x}.png', width=176, height=176) for x in range(7)]
+            file=PATH / f"hang{x}.png", width=176, height=176) for x in range(7)]
 
         self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
 
@@ -138,7 +137,7 @@ class Application:
                 self.botao[letra]["command"] = lambda x=letra: self.botao_clicado(
                     x)
             else:
-                self.botao[letra]["command"] = self.ajuda
+                self.botao[letra]["command"] = self.jogo.ajuda
                 self.botao[letra]["bg"] = self.cores["verde"]
                 self.botao[letra]["foreground"] = self.cores["azul_escuro"]
 
@@ -150,7 +149,7 @@ class Application:
     def verificar_letra(self, letra) -> None:
         """ Função que verifica se a letra clicada pertence a palavra corrente.
             Caso acerte aletra ela será mostrada na tela. """
-        if letra in self.palavra:
+        if letra in self.jogo.palavra.palavra_atual:
             self.botao[letra]["bg"] = self.cores["amarelo"]
             self.atualizar_palavra(letra)
         else:
@@ -158,45 +157,30 @@ class Application:
             self.chances_restantes.set(self.chances_restantes.get() - 1)
             self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
 
-        self.acertou_a_palavra()
-        self.acabou_as_chances()
+        if self.jogo.acertou_a_palavra(self.letras_adivinhadas.get()):
+            self.num_acertos.set(int(self.num_acertos.get()) + 1)
+            self.jogo.palavra.remover_palavras_acertadas()
+            self.nova_partida()
+
+        if self.jogo.acabou_as_chances(self.chances_restantes.get()):
+            self.num_erros.set(int(self.num_erros.get()) + 1)
+            self.nova_partida()
 
     def atualizar_palavra(self, letra_clicada) -> None:
         """ Atualiza a palavra para mostrar a letra que foi acertada """
         temp = list(self.letras_adivinhadas.get().replace(" ", ""))
-        for i, letra in enumerate(self.palavra):
+        for i, letra in enumerate(self.jogo.palavra.palavra_atual):
             if letra_clicada == letra:
                 temp[i] = letra_clicada
 
-            self.letras_adivinhadas.set(" ".join(temp))
-
-    def acertou_a_palavra(self) -> None:
-        """ Função que verifica se a palavra já está completa
-            e mostra  uma  menságem dizendo  que o usuário já
-            adivinhou e irá iniciar um nova partida. """
-        if "_" not in self.letras_adivinhadas.get():
-            mensagem = f"Parabéns, você acertou!\nA palavra era: {self.palavra}"
-            messagebox.showinfo(message=mensagem, title="Hangman")
-            self.num_acertos.set(int(self.num_acertos.get()) + 1)
-            self.jogo.add_palavra_acertada(self.palavra, self.dica)
-            self.nova_partida()
-
-    def acabou_as_chances(self) -> None:
-        """ Caso as imagem_atual tenhar  acabado  será  mostrada
-            uma menságem dizendo que o jogador perdeu e irá
-            iciar uma nova partida."""
-        if self.chances_restantes.get() == 0:
-            mensagem = f"Poxa, você perdeu!\nA palavra era: {self.palavra}"
-            messagebox.showwarning(message=mensagem, title="Hangman")
-            self.num_erros.set(int(self.num_erros.get()) + 1)
-            self.nova_partida()
+        self.letras_adivinhadas.set(" ".join(temp))
 
     def nova_partida(self) -> None:
         """ Essa função reinicia as configurações iniciais
             para que se possa  jogar uma nova partida como
             se fosse a primeira  novamente mantendo apenas
             os erros e acertos já obtidos. """
-        self.zereu_o_jogo()
+        self.jogo.zereu_o_jogo()
 
         for letra in self.botao:
             if letra != '?':
@@ -205,21 +189,6 @@ class Application:
 
         self.chances_restantes.set(6)
         self.figura["image"] = self.imagen_hang[self.chances_restantes.get()]
-        self.palavra, self.dica = self.jogo.nova_palavra()
+        self.jogo.palavra.nova_palavra()
         self.letras_adivinhadas.set(
-            " ".join(["_" for _ in self.palavra]))
-
-    def zereu_o_jogo(self) -> None:
-        """ Essa função será verdade caso o jogador acerte todas as 
-            palavras contidas no jogo, após isso será exibida uma
-            menságe e o jogo irá fechar. """
-        if self.jogo.acabou_as_palavras():
-            mensagem = "Parabéns, você acertou todas as palavras do jogo.\nParabéns por zerar o jogo."
-            messagebox.showinfo(message=mensagem, title="Hangman")
-            self.app.destroy()
-            quit()
-
-    def ajuda(self) -> None:
-        """ Função mostra a dica da palavra que esta apresentada. """
-        mensagem = self.dica
-        messagebox.showinfo(message=mensagem, title="Hangman")
+            " ".join(["_" for _ in self.jogo.palavra.palavra_atual]))
