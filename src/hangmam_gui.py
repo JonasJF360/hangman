@@ -18,6 +18,7 @@ class Application:
         "vermelho": '#e69ca6',
         "verde": "#49dbb0",
         "amarelo": "#dac17c",
+        "cinza": "#647c7a",
     }
 
     def __init__(self) -> None:
@@ -106,7 +107,7 @@ class Application:
     def app_buttons(self) -> None:
         """ Definição dos botões do app com suas respectivas
             configurações e funcionalidades. """
-        alfabeto: list = ["ABCDEFG", "HIJKLMN", "OPQRSTU", "VWXYZÇ?"]
+        alfabeto: list = ["ABCDEFG", "HIJKLMN", "OPQRSTU", "#VWXYZ?"]
 
         self.botao = {}
         for linha, dado in enumerate(alfabeto):
@@ -133,13 +134,13 @@ class Application:
 
         # botoes
         for letra in self.botao:
-            if letra != '?':
-                self.botao[letra]["command"] = lambda x=letra: self.botao_clicado(
-                    x)
-            else:
-                self.botao[letra]["command"] = self.jogo.ajuda
+            if letra == '#' or letra == '?':
+                self.botao[letra]["command"] = self.jogo.ajuda if letra == '?' else self.jogo.sobre
                 self.botao[letra]["bg"] = self.cores["verde"]
                 self.botao[letra]["foreground"] = self.cores["azul_escuro"]
+            else:
+                self.botao[letra]["command"] = lambda x=letra: self.botao_clicado(
+                    x)
 
     def botao_clicado(self, letra) -> None:
         """ Essa função identifica a letra clicada e desabilita o botão dessa letra. """
@@ -149,7 +150,7 @@ class Application:
     def verificar_letra(self, letra) -> None:
         """ Função que verifica se a letra clicada pertence a palavra corrente.
             Caso acerte aletra ela será mostrada na tela. """
-        if letra in self.jogo.palavra.palavra_atual:
+        if self.jogo.contem_a_letra(letra):
             self.botao[letra]["bg"] = self.cores["amarelo"]
             self.atualizar_palavra(letra)
         else:
@@ -168,12 +169,13 @@ class Application:
 
     def atualizar_palavra(self, letra_clicada) -> None:
         """ Atualiza a palavra para mostrar a letra que foi acertada """
-        temp = list(self.letras_adivinhadas.get().replace(" ", ""))
+        temp_palavra = list(self.letras_adivinhadas.get().replace(" ", ""))
         for i, letra in enumerate(self.jogo.palavra.palavra_atual):
-            if letra_clicada == letra:
-                temp[i] = letra_clicada
+            temp_letra = self.jogo.letra_correspondente(letra_clicada, letra)
+            if temp_letra == letra:
+                temp_palavra[i] = temp_letra
 
-        self.letras_adivinhadas.set(" ".join(temp))
+        self.letras_adivinhadas.set(" ".join(temp_palavra))
 
     def nova_partida(self) -> None:
         """ Essa função reinicia as configurações iniciais
@@ -183,7 +185,7 @@ class Application:
         self.jogo.zereu_o_jogo()
 
         for letra in self.botao:
-            if letra != '?':
+            if '#' != letra != '?':
                 self.botao[letra]["bg"] = self.cores["azul_escuro"]
                 self.botao[letra]["state"] = NORMAL
 

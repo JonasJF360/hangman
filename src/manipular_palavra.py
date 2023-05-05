@@ -21,5 +21,5 @@ class PalavrasJogo:
         words.remove([self.palavra_atual.lower(), self.dica_atual])
 
     def acabou_as_palavras(self) -> bool:
-        """ Retorna verdadeiro se só restar uma palavra tiver na lista. """
+        """ Retorna verdadeiro se não tiver mais palavras na lista. """
         return not words
